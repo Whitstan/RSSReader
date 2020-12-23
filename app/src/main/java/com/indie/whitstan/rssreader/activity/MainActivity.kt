@@ -1,7 +1,6 @@
 package com.indie.whitstan.rssreader.activity
 
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 
 import androidx.appcompat.app.AppCompatActivity

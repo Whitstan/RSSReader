@@ -7,7 +7,7 @@
         android:layout_height="match_parent">
 
         <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progress_bar_rss_items"
+            android:id="@+id/clpbRSSItems"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent">
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rss_items_recycler_view"
+                android:id="@+id/rvRSSItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp" />

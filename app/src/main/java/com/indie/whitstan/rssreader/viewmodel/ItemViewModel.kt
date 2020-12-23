@@ -3,6 +3,7 @@ package com.indie.whitstan.rssreader.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -10,6 +11,7 @@ import kotlinx.coroutines.launch
 import com.indie.whitstan.rssreader.model.Item
 import com.indie.whitstan.rssreader.persistence.ItemDao
 import com.indie.whitstan.rssreader.persistence.ItemsDatabase
+import io.reactivex.schedulers.Schedulers
 
 class ItemViewModel(application: Application) : AndroidViewModel(application){
     private val itemDao: ItemDao
