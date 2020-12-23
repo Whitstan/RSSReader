@@ -1,6 +1,7 @@
 package com.indie.whitstan.rssreader.persistence
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 
 import com.indie.whitstan.rssreader.model.Item

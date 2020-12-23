@@ -6,14 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,16 +28,14 @@ import com.indie.whitstan.rssreader.model.RSSObject
 import com.indie.whitstan.rssreader.network.RetrofitClient
 import com.indie.whitstan.rssreader.util.MODE_FAVORITE
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
+import kotlinx.android.synthetic.main.fragment_rss_list.*
 
-class ListFragment : Fragment() {
+class ListFragment : Fragment(){
+
+    private val mRetrofitClient: RetrofitClient by lazy { RetrofitClient() }
 
     private lateinit var binding: FragmentRssListBinding
     private lateinit var mItemViewModel: ItemViewModel
-    private var mAdapter: ItemAdapter? = null
-    private var mRetrofitClient: RetrofitClient = RetrofitClient()
-    private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mProgressBar: ContentLoadingProgressBar
-    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = DataBindingUtil.inflate(
@@ -58,19 +53,11 @@ class ListFragment : Fragment() {
         loadRSSData()
     }
 
-    override fun onResume() {
-        super.onResume()
-        refreshFavoriteMarkers()
-    }
-
     private fun setupViews() {
-        mRecyclerView = binding.rssItemsRecyclerView
         val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        mRecyclerView.layoutManager = linearLayoutManager
-        mRecyclerView.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-        mProgressBar = binding.progressBarRssItems
-        mSwipeRefreshLayout = binding.swipeRefreshLayout
-        mSwipeRefreshLayout.setOnRefreshListener {loadRSSData()}
+        rvRSSItems.layoutManager = linearLayoutManager
+        rvRSSItems.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
+        swipe_refresh_layout.setOnRefreshListener {loadRSSData()}
     }
 
     private fun setupViewModel(){
@@ -79,16 +66,15 @@ class ListFragment : Fragment() {
 
     private fun loadRSSData() {
         showLoadingIndicator()
-        mRetrofitClient.createCall()?.enqueue(object : Callback<RSSObject?> {
+        mRetrofitClient.createRSSApi().getRSSObject?.enqueue(object : Callback<RSSObject?> {
             override fun onResponse(call: Call<RSSObject?>, response: Response<RSSObject?>) {
                 hideLoadingIndicator()
-                mAdapter = response.body()?.let {
+                rvRSSItems.adapter = response.body()?.let {
                     it.items?.let { rssIt ->
                         ItemAdapter(mItemViewModel, rssIt)
                     }
                 }!!
-                mAdapter?.setMode(MODE_FAVORITE)
-                mRecyclerView.adapter = mAdapter
+                (rvRSSItems.adapter as ItemAdapter).setMode(MODE_FAVORITE)
                 refreshFavoriteMarkers()
             }
 
@@ -101,9 +87,9 @@ class ListFragment : Fragment() {
     }
 
     private fun refreshFavoriteMarkers(){
-        markFavoritesByList(mAdapter?.mItemsList)
-        mAdapter?.notifyDataSetChanged()
-        mAdapter?.closeAllSwipeRevealLayouts()
+        markFavoritesByList((rvRSSItems.adapter as ItemAdapter).mItemsList)
+        rvRSSItems.adapter?.notifyDataSetChanged()
+        (rvRSSItems.adapter as ItemAdapter).closeAllSwipeRevealLayouts()
     }
 
     private fun markFavoritesByList(listOfItems: List<Item>?){
@@ -117,14 +103,14 @@ class ListFragment : Fragment() {
     }
 
     private fun showLoadingIndicator() {
-        mRecyclerView.visibility = View.GONE
-        mProgressBar.visibility = View.VISIBLE
-        mSwipeRefreshLayout.isRefreshing = false
+        rvRSSItems.visibility = View.GONE
+        clpbRSSItems.visibility = View.VISIBLE
+        swipe_refresh_layout.isRefreshing = false
     }
 
     private fun hideLoadingIndicator() {
-        mRecyclerView.visibility = View.VISIBLE
-        mProgressBar.visibility = View.GONE
-        mSwipeRefreshLayout.isRefreshing = false
+        rvRSSItems.visibility = View.VISIBLE
+        clpbRSSItems.visibility = View.GONE
+        swipe_refresh_layout.isRefreshing = false
     }
 }
