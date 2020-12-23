@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">RSSReader</string>
+    <string name="app_name">RSS Reader</string>
+    <string name="title_main">Reader</string>
+    <string name="title_detail">Details</string>
+    <string name="title_favorites">Favorites</string>
+    <string name="menu_exit">Exit</string>
+    <string name="menu_save_article">Save article</string>
+    <string name="menu_favorites">Favorites</string>
+    <string name="menu_list">List</string>
+    <string name="error_while_loading_details">An error occurred while loading article details</string>
+    <string name="error_while_loading_data">An error occurred while loading data</string>
+    <string name="error_while_loading_favorites">An error occurred while loading Favorites</string>
+    <string name="msg_added_to_favorites">Added to Favorites!</string>
+    <string name="msg_removed_from_favorites">Removed from Favorites!</string>
 </resources>
