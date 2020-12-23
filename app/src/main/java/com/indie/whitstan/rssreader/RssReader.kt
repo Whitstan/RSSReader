@@ -6,6 +6,5 @@ import android.util.Log
 class RssReader : Application(){
     override fun onCreate() {
         super.onCreate()
-
     }
 }
