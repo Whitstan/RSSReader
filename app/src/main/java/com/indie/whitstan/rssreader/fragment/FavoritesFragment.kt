@@ -5,33 +5,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import androidx.core.widget.ContentLoadingProgressBar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+
+import org.koin.android.viewmodel.ext.android.sharedViewModel
+
+import kotlinx.android.synthetic.main.fragment_favorites_list.*
 
 import com.indie.whitstan.rssreader.R
-import com.indie.whitstan.rssreader.adapter.ItemAdapter
-import com.indie.whitstan.rssreader.databinding.FragmentFavoritesBinding
-import com.indie.whitstan.rssreader.util.MODE_DELETE
+import com.indie.whitstan.rssreader.adapter.FavoriteArticleAdapter
+import com.indie.whitstan.rssreader.databinding.FragmentFavoritesListBinding
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
 class FavoritesFragment : Fragment() {
-    private lateinit var binding : FragmentFavoritesBinding
+    private lateinit var binding : FragmentFavoritesListBinding
+    private val itemViewModel : ItemViewModel by sharedViewModel()
 
-    private lateinit var mItemViewModel: ItemViewModel
-
-    private lateinit var mAdapter: ItemAdapter
-    private lateinit var mRecyclerView: RecyclerView
-    private lateinit var mProgressBar: ContentLoadingProgressBar
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(
                 inflater,
-                R.layout.fragment_favorites,
+                R.layout.fragment_favorites_list,
                 container,
                 false
         )
@@ -41,25 +36,20 @@ class FavoritesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
-        setupViewModel()
     }
 
     override fun onResume() {
         super.onResume()
-        mItemViewModel.allItems.observe(viewLifecycleOwner, { rssItems ->
-            rssItems?.let {
-                mAdapter = ItemAdapter(mItemViewModel, rssItems)
-                mAdapter.setRSSItems(rssItems)
-                mAdapter.setMode(MODE_DELETE)
-                mRecyclerView.adapter = mAdapter
-                mAdapter.notifyDataSetChanged()
+        itemViewModel.loadFavoritesFromDb()
+        itemViewModel.favoritesMediatorData.observe(viewLifecycleOwner, { favorites ->
+            favorites?.let {
+                val adapter = FavoriteArticleAdapter()
+                adapter.setItems(favorites)
+                rvFavoritesList.adapter = adapter
+                rvFavoritesList.adapter!!.notifyDataSetChanged()
                 hideLoadingIndicator()
             }
         })
-    }
-
-    private fun setupViewModel(){
-        mItemViewModel = ViewModelProviders.of(this).get(ItemViewModel::class.java)
     }
 
     override fun onStart() {
@@ -68,20 +58,18 @@ class FavoritesFragment : Fragment() {
     }
 
     private fun showLoadingIndicator() {
-        mRecyclerView.visibility = View.GONE
-        mProgressBar.visibility = View.VISIBLE
+        rvFavoritesList.visibility = View.GONE
+        clpbFavoritesList.visibility = View.VISIBLE
     }
 
     private fun hideLoadingIndicator() {
-        mRecyclerView.visibility = View.VISIBLE
-        mProgressBar.visibility = View.GONE
+        rvFavoritesList.visibility = View.VISIBLE
+        clpbFavoritesList.visibility = View.GONE
     }
 
     private fun setupViews() {
-        mRecyclerView = binding.recyclerViewSavedItems
         val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        mRecyclerView.layoutManager = linearLayoutManager
-        mRecyclerView.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-        mProgressBar = binding.progressBarSavedItems
+        rvFavoritesList.layoutManager = linearLayoutManager
+        rvFavoritesList.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
     }
 }

@@ -1,62 +1,40 @@
 package com.indie.whitstan.rssreader.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.persistence.ItemRepository
+import org.koin.java.KoinJavaComponent.inject
 
-import com.indie.whitstan.rssreader.model.Item
-import com.indie.whitstan.rssreader.persistence.ItemDao
-import com.indie.whitstan.rssreader.persistence.ItemsDatabase
-import io.reactivex.schedulers.Schedulers
+class ItemViewModel : ViewModel(){
+    private val articlesLiveData = MutableLiveData<List<Article>>()
+    private val favoritesLiveData = MutableLiveData<List<Article>>()
 
-class ItemViewModel(application: Application) : AndroidViewModel(application){
-    private val itemDao: ItemDao
-    internal val allItems: LiveData<List<Item>>
+    val articlesMediatorData = MediatorLiveData<List<Article>>()
+    val favoritesMediatorData = MediatorLiveData<List<Article>>()
+
+    private val repository : ItemRepository by inject(ItemRepository::class.java)
 
     init {
-        val rssItemDB = ItemsDatabase.getInstance(application)
-        itemDao = rssItemDB!!.rssItemDao()
-        allItems = itemDao.getAllItems
-    }
+        articlesMediatorData.addSource(articlesLiveData) {
+            articlesMediatorData.value = it
+        }
 
-    fun insertRSSItem(item: Item?) {
-        GlobalScope.launch {
-            if (item != null){ // TODO: not the best solution for ensuring null values are not passed...
-                itemDao.insertItem(item)
-            }
+        favoritesMediatorData.addSource(favoritesLiveData) {
+            favoritesMediatorData.value = it
         }
     }
 
-    fun getSingleRSSItemById(guid : String): LiveData<Item> {
-        return itemDao.getSingleRSSItemById(guid)
-    }
-
-    suspend fun isRSSItemStoredInDB(guid : String?): Boolean{
-        if (guid != null){ // TODO: not the best solution for ensuring null values are not passed...
-            return itemDao.isRSSItemStoredInDB(guid)
-        }
-        else{
-            return false
+    fun loadArticlesFromDb() {
+        if (articlesLiveData.value.isNullOrEmpty()) {
+            repository.loadArticlesFromDb(this@ItemViewModel)
         }
     }
 
-    fun updateRSSItem(item: Item?) {
-        GlobalScope.launch {
-            if (item != null){ // TODO: not the best solution for ensuring null values are not passed...
-                itemDao.updateItem(item)
-            }
+    fun loadFavoritesFromDb(){
+        if (favoritesLiveData.value.isNullOrEmpty()) {
+            repository.loadFavoritesFromDb(this@ItemViewModel)
         }
     }
 
-    fun deleteRSSItem(item: Item?) {
-        GlobalScope.launch {
-            if (item != null){ // TODO: not the best solution for ensuring null values are not passed...
-                itemDao.deleteItem(item)
-            }
-        }
-    }
 }

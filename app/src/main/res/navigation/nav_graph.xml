@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/list_destination"
         android:name="com.indie.whitstan.rssreader.fragment.ListFragment"
-        android:label="Articles" >
+        android:label="Articles">
         <action
             android:id="@+id/navigate_to_item_details_from_list"
             app:destination="@id/details_destination"

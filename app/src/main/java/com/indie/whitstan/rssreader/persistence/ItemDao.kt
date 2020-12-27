@@ -1,30 +1,35 @@
 package com.indie.whitstan.rssreader.persistence
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 
-import com.indie.whitstan.rssreader.model.Item
+import com.indie.whitstan.rssreader.model.persistence.Article
 
 @Dao
 interface ItemDao {
+    @Query("SELECT * FROM articles")
+    suspend fun getArticles(): List<Article>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insertItem(item: Item?)
+    @Query("SELECT * FROM articles WHERE guid=:guidParam ")
+    suspend fun getArticleByGuid(guidParam: String): Article
 
-    @get:Query("SELECT * FROM items")
-    val getAllItems: LiveData<List<Item>>
+    @Query("SELECT * FROM articles WHERE favorite = 1")
+    suspend fun getFavorites(): List<Article>
 
-    @Query("SELECT * FROM items WHERE guid=:guidParam ")
-    fun getSingleRSSItemById(guidParam: String): LiveData<Item>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertArticle(article: Article)
 
-    @Query("SELECT EXISTS (SELECT 1 FROM items WHERE guid =:guidParam)")
-    suspend fun isRSSItemStoredInDB(guidParam: String): Boolean
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertListOfArticles(articles : List<Article>)
+
+    @Query("SELECT 1 FROM articles WHERE favorite = 1 AND guid=:guidParam")
+    suspend fun isArticleFavoriteAlready(guidParam: String): Boolean
 
     @Update
-    fun updateItem(item: Item)
+    suspend fun updateArticle(article: Article)
 
     @Delete
-    fun deleteItem(item: Item?)
+    suspend fun deleteArticle(article: Article)
 
+    @Query("DELETE FROM articles WHERE favorite = 0")
+    suspend fun deleteArticlesExceptFavorites()
 }

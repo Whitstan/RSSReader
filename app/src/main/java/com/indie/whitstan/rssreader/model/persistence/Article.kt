@@ -1,53 +1,45 @@
-package com.indie.whitstan.rssreader.model
+package com.indie.whitstan.rssreader.model.persistence
+
+import java.util.*
 
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.databinding.library.baseAdapters.BR
-import java.util.*
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
 
-import org.simpleframework.xml.Element
-import org.simpleframework.xml.Root
 
-@Root(name = "item", strict = false)
-@Entity(tableName = "items")
-class Item : BaseObservable() {
+@Entity(tableName = "articles")
+class Article : BaseObservable() {
     @field:PrimaryKey
     @field:ColumnInfo(name = "guid")
-    @field:Element(name = "guid", required = false)
     var guid: String = UUID.randomUUID().toString()
 
     @field:ColumnInfo(name = "title")
-    @field:Element(name = "title", required = false)
     var title: String? = null
 
     @field:ColumnInfo(name = "link")
-    @field:Element(name = "link", required = false)
     var link: String? = null
 
     @field:ColumnInfo(name = "pubDate")
-    @field:Element(name = "pubDate", required = false)
     var pubDate: String? = null
 
     @field:ColumnInfo(name = "description")
-    @field:Element(name = "description", required = false)
     var description: String? = null
 
-    @Ignore
-    var isFavorite: Boolean = false
+    @field:ColumnInfo(name = "favorite")
+    var fav: Boolean = false
 
     @Bindable
-    fun getFavorite() : Boolean{
-        return isFavorite
+    fun isFavorite() : Boolean{
+        return fav
     }
 
     @JvmName("setFavorite_")
     fun setFavorite(newValue : Boolean){
-        isFavorite = newValue
+        fav = newValue
         notifyPropertyChanged(BR.favorite);
     }
 }

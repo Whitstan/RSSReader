@@ -5,6 +5,7 @@ import android.view.MenuItem
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
@@ -14,8 +15,13 @@ import androidx.navigation.ui.NavigationUI
 import kotlinx.android.synthetic.main.activity_main.*
 
 import com.indie.whitstan.rssreader.R
+import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
+
+    val itemViewModel : ItemViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

@@ -8,9 +8,16 @@ import org.koin.core.context.startKoin
 class RssReader : Application(){
     override fun onCreate() {
         super.onCreate()
+        application = this
         startKoin {
             androidContext(this@RssReader)
             modules(AppModule.getModules())
         }
     }
+
+    companion object {
+        lateinit var application: RssReader
+            private set
+    }
+
 }

@@ -1,4 +1,4 @@
-package com.indie.whitstan.rssreader.model
+package com.indie.whitstan.rssreader.model.network
 
 import org.simpleframework.xml.*
 
@@ -10,7 +10,7 @@ data class RSSObject @JvmOverloads constructor(
 
     @field:ElementList(name = "item", inline = true, required = false)
     @field:Path("channel")
-    var items: List<Item>? = null
+    var RSSItems: List<RSSItem>? = null
 )
 
 
