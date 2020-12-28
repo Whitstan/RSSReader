@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
-        <variable name="listItem" type="com.indie.whitstan.rssreader.model.persistence.Article" />
+        <variable name="article" type="com.indie.whitstan.rssreader.model.persistence.Article" />
     </data>
     <com.chauthai.swipereveallayout.SwipeRevealLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -22,7 +22,7 @@
                 android:layout_height="match_parent"
                 android:background="#d2691e"
                 android:paddingStart="25dp"
-                android:drawableStart="@{listItem.favorite ? @drawable/ic_favorite_already : @drawable/ic_not_favorite_yet}"
+                android:drawableStart="@{article.favorite ? @drawable/ic_favorite_already : @drawable/ic_not_favorite_yet}"
                 android:gravity="center"
                 android:textColor="#ffffff" />
         </LinearLayout>
@@ -36,7 +36,7 @@
             android:orientation="vertical"
             android:padding="20dp">
             <TextView
-                android:text="@{listItem.title}"
+                android:text="@{article.title}"
                 android:id="@+id/txtTitle"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content" />
 
             <TextView
-                android:text="@{listItem.pubDate}"
+                android:text="@{article.pubDate}"
                 android:id="@+id/txtPubDate"
                 android:textSize="12sp"
                 android:textStyle="italic"

@@ -2,6 +2,7 @@ package com.indie.whitstan.rssreader.util
 
 import com.indie.whitstan.rssreader.model.network.RSSItem
 import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 
 class Converters {
     companion object{
@@ -20,6 +21,16 @@ class Converters {
                 }
             }
             return resultList
+        }
+
+        fun convertArticleToFavoriteArticle(article: Article) : FavoriteArticle{
+            val resultFavoriteArticle = FavoriteArticle()
+            resultFavoriteArticle.guid = article.guid
+            resultFavoriteArticle.title = article.title
+            resultFavoriteArticle.description = article.description
+            resultFavoriteArticle.pubDate = article.pubDate
+            resultFavoriteArticle.link = article.link
+            return resultFavoriteArticle
         }
 
     }

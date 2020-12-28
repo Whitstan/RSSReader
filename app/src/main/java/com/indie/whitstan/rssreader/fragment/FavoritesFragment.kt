@@ -40,16 +40,16 @@ class FavoritesFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        itemViewModel.loadFavoritesFromDb()
+        val adapter = FavoriteArticleAdapter(itemViewModel)
         itemViewModel.favoritesMediatorData.observe(viewLifecycleOwner, { favorites ->
             favorites?.let {
-                val adapter = FavoriteArticleAdapter()
                 adapter.setItems(favorites)
                 rvFavoritesList.adapter = adapter
                 rvFavoritesList.adapter!!.notifyDataSetChanged()
                 hideLoadingIndicator()
             }
         })
+        itemViewModel.loadFavoritesFromDb()
     }
 
     override fun onStart() {

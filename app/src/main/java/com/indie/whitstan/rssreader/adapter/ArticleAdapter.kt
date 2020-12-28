@@ -22,6 +22,7 @@ import com.indie.whitstan.rssreader.adapter.ArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowArticleBinding
 import com.indie.whitstan.rssreader.model.persistence.Article
 import com.indie.whitstan.rssreader.persistence.ItemRepository
+import com.indie.whitstan.rssreader.util.Converters
 
 class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
     private var binding: RowArticleBinding? = null
@@ -50,18 +51,12 @@ class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
         notifyDataSetChanged()
     }
 
-    fun closeAllSwipeRevealLayouts(){
-        if (binding != null){
-            binding!!.swipereveallayout.close(true)
-        }
-    }
-
     inner class ArticleViewHolder(private val binding: RowArticleBinding) : RecyclerView.ViewHolder(binding.root) {
         private var btnAddToFavorites: Button = binding.btnAddToFavorites
 
         fun bind(item: Article) {
             this@ArticleAdapter.binding = binding.apply {
-                listItem = item
+                article = item
                 executePendingBindings()
             }
         }
@@ -70,8 +65,9 @@ class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
             btnAddToFavorites.setOnClickListener {
                 GlobalScope.launch(Dispatchers.IO) {
                     withContext(Dispatchers.Main) {
-                        binding.listItem?.setFavorite(!binding.listItem?.isFavorite()!!)
-                        repository.updateArticle(binding.listItem!!)
+                        binding.article?.setFavorite(!binding.article?.isFavorite()!!)
+                        repository.updateArticle(binding.article!!)
+                        repository.insertFavoriteArticle(Converters.convertArticleToFavoriteArticle(binding.article!!))
                         notifyDataSetChanged()
                     }
                 }
@@ -80,10 +76,10 @@ class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
 
             binding.mainlayout.setOnClickListener{ view ->
                 val args = bundleOf(
-                    Pair("title",  binding.listItem!!.title),
-                    Pair("description", binding.listItem!!.description),
-                    Pair("pubDate", binding.listItem!!.pubDate),
-                    Pair("link", binding.listItem!!.link)
+                    Pair("title",  binding.article!!.title),
+                    Pair("description", binding.article!!.description),
+                    Pair("pubDate", binding.article!!.pubDate),
+                    Pair("link", binding.article!!.link)
                 )
                 view.findNavController().navigate(R.id.navigate_to_item_details_from_list, args)
             }

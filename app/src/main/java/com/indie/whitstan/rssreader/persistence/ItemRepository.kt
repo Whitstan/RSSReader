@@ -15,18 +15,20 @@ import retrofit2.Response
 import com.indie.whitstan.rssreader.RssReader
 import com.indie.whitstan.rssreader.model.network.RSSObject
 import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 import com.indie.whitstan.rssreader.network.RetrofitClient
 import com.indie.whitstan.rssreader.util.Converters
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
 interface IItemRepository{
     suspend fun getArticleByGuid(guid : String): Article
-    suspend fun isFavorite(guid : String): Boolean
     fun insertArticle(article: Article)
+    fun insertFavoriteArticle(favoriteArticle: FavoriteArticle)
     fun insertListOfArticles(articles : List<Article>)
     fun updateArticle(article: Article)
     suspend fun deleteArticle(article: Article)
-    fun deleteArticlesExceptFavorites()
+    fun deleteArticles()
+    fun deleteFavorite(favorite : FavoriteArticle)
 }
 
 class ItemRepository: IItemRepository {
@@ -40,6 +42,12 @@ class ItemRepository: IItemRepository {
     override fun insertArticle(article: Article) {
         GlobalScope.launch(Dispatchers.IO) {
             itemDao.insertArticle(article)
+        }
+    }
+
+    override fun insertFavoriteArticle(favoriteArticle: FavoriteArticle) {
+        GlobalScope.launch(Dispatchers.IO) {
+            itemDao.insertFavoriteArticle(favoriteArticle)
         }
     }
 
@@ -61,14 +69,21 @@ class ItemRepository: IItemRepository {
         }
     }
 
-    override fun deleteArticlesExceptFavorites(){
+    override fun deleteArticles(){
         GlobalScope.launch(Dispatchers.IO) {
-            itemDao.deleteArticlesExceptFavorites()
+            itemDao.deleteArticles()
         }
     }
 
-    override suspend fun isFavorite(guid : String): Boolean{
-        return itemDao.isArticleFavoriteAlready(guid)
+    override fun deleteFavorite(favorite : FavoriteArticle){
+        GlobalScope.launch(Dispatchers.IO) {
+            val articleToUpdate = itemDao.getArticleByGuid(favorite.guid)
+            if (articleToUpdate != null) {
+                articleToUpdate.setFavorite(!articleToUpdate.isFavorite())
+                itemDao.updateArticle(articleToUpdate)
+            }
+            itemDao.deleteFavoriteArticle(favorite.guid)
+        }
     }
 
     fun fetchRssData(itemViewModel : ItemViewModel) {
@@ -78,7 +93,7 @@ class ItemRepository: IItemRepository {
                     val rssItems = response.body()!!.RSSItems
                     if (rssItems != null){
                         val articles = Converters.convertRssItemsToArticles(rssItems)
-                        deleteArticlesExceptFavorites()
+                        deleteArticles()
                         insertListOfArticles(articles)
                         itemViewModel.articlesMediatorData.postValue(articles)
                     }

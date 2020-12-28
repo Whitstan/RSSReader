@@ -5,7 +5,7 @@ import retrofit2.Call
 import retrofit2.http.GET
 
 interface RssService {
-    //@get:GET("24ora/rss")
-    @get:GET("sample-feed.xml")
+    @get:GET("24ora/rss")
+    //@get:GET("sample-feed.xml")
     val getRSSObject: Call<RSSObject?>?
 }

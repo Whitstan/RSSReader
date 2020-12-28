@@ -8,11 +8,6 @@ import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
 import com.chauthai.swipereveallayout.ViewBinderHelper
 
 import org.koin.java.KoinJavaComponent.inject
@@ -20,15 +15,16 @@ import org.koin.java.KoinJavaComponent.inject
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.FavoriteArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowFavoriteArticleBinding
-import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 import com.indie.whitstan.rssreader.persistence.ItemRepository
+import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
-class FavoriteArticleAdapter : RecyclerView.Adapter<FavoriteArticleViewHolder>() {
+class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<FavoriteArticleViewHolder>() {
     private var binding: RowFavoriteArticleBinding? = null
     private val viewBinderHelper = ViewBinderHelper()
     val repository : ItemRepository by inject(ItemRepository::class.java)
 
-    private var favoritesList: List<Article> = arrayListOf()
+    private var favoritesList: ArrayList<FavoriteArticle> = arrayListOf()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FavoriteArticleViewHolder {
         return FavoriteArticleViewHolder(
@@ -47,21 +43,15 @@ class FavoriteArticleAdapter : RecyclerView.Adapter<FavoriteArticleViewHolder>()
         viewBinderHelper.setOpenOnlyOne(true)
     }
 
-    fun setItems(list: List<Article>){
-        favoritesList = list
+    fun setItems(list: List<FavoriteArticle>){
+        favoritesList = list as ArrayList<FavoriteArticle>
         notifyDataSetChanged()
-    }
-
-    fun closeAllSwipeRevealLayouts(){
-        if (binding != null){
-            binding!!.swipereveallayout.close(true)
-        }
     }
 
     inner class FavoriteArticleViewHolder(private val binding: RowFavoriteArticleBinding) : RecyclerView.ViewHolder(binding.root) {
         private var btnDeleteFromFavorites: Button = binding.btnDeleteFromFavorites
 
-        fun bind(item: Article) {
+        fun bind(item: FavoriteArticle) {
             this@FavoriteArticleAdapter.binding = binding.apply {
                 favorite = item
                 executePendingBindings()
@@ -70,15 +60,10 @@ class FavoriteArticleAdapter : RecyclerView.Adapter<FavoriteArticleViewHolder>()
 
         init {
             btnDeleteFromFavorites.setOnClickListener {
-                GlobalScope.launch(Dispatchers.IO) {
-                    withContext(Dispatchers.Main) {
-                        binding.favorite?.setFavorite(false)
-                        repository.updateArticle(binding.favorite!!)
-
-                    }
-                }
+                repository.deleteFavorite(binding.favorite!!)
+                favoritesList.remove(binding.favorite!!)
+                itemViewModel.favoritesMediatorData.postValue(favoritesList)
             }
-
             binding.mainlayout.setOnClickListener{ view ->
                 val args = bundleOf(
                     Pair("title",  binding.favorite!!.title),

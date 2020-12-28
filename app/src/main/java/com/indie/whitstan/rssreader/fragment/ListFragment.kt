@@ -22,6 +22,7 @@ import com.indie.whitstan.rssreader.adapter.ArticleAdapter
 import com.indie.whitstan.rssreader.databinding.FragmentArticlesListBinding
 import com.indie.whitstan.rssreader.persistence.ItemRepository
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
+import kotlinx.android.synthetic.main.fragment_favorites_list.*
 
 class ListFragment : Fragment(){
 
@@ -41,13 +42,18 @@ class ListFragment : Fragment(){
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupViews()
-        itemViewModel.loadArticlesFromDb()
         itemViewModel.articlesMediatorData.observe(viewLifecycleOwner, Observer {
             val adapter = ArticleAdapter()
             adapter.setItems(it)
             rvArticlesList.adapter = adapter
             hideLoadingIndicator()
         })
+        itemViewModel.loadArticlesFromDb()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        showLoadingIndicator()
     }
 
     private fun setupViews() {
@@ -55,6 +61,12 @@ class ListFragment : Fragment(){
         rvArticlesList.layoutManager = linearLayoutManager
         rvArticlesList.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         srlArticlesList.setOnRefreshListener {repository.fetchRssData(itemViewModel)}
+    }
+
+    private fun showLoadingIndicator() {
+        rvArticlesList.visibility = View.GONE
+        clpbArticlesList.visibility = View.VISIBLE
+        srlArticlesList.isRefreshing = false
     }
 
     private fun hideLoadingIndicator() {

@@ -12,17 +12,17 @@
         <action
             android:id="@+id/navigate_to_item_details_from_list"
             app:destination="@id/details_destination"
-            app:enterAnim="@anim/anim_slide_in_left"
-            app:exitAnim="@anim/anim_slide_out_left"
-            app:popEnterAnim="@anim/anim_slide_in_right"
-            app:popExitAnim="@anim/anim_slide_out_right"/>
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         <action
             android:id="@+id/navigate_to_favorites_from_list"
             app:destination="@id/favorites_destination"
             app:enterAnim="@anim/anim_slide_in_left"
             app:exitAnim="@anim/anim_slide_out_left"
             app:popEnterAnim="@anim/anim_slide_in_right"
-            app:popExitAnim="@anim/anim_slide_out_right"/>
+            app:popExitAnim="@anim/anim_slide_out_right" />
     </fragment>
 
     <fragment
@@ -60,7 +60,9 @@
             app:enterAnim="@anim/anim_slide_in_right"
             app:exitAnim="@anim/anim_slide_out_right"
             app:popEnterAnim="@anim/anim_slide_in_left"
-            app:popExitAnim="@anim/anim_slide_out_left"/>
+            app:popExitAnim="@anim/anim_slide_out_left"
+            app:popUpTo="@id/list_destination"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -70,17 +72,19 @@
         <action
             android:id="@+id/navigate_to_item_details_from_favorites"
             app:destination="@id/details_destination"
-            app:enterAnim="@anim/anim_slide_in_left"
-            app:exitAnim="@anim/anim_slide_out_left"
-            app:popEnterAnim="@anim/anim_slide_in_right"
-            app:popExitAnim="@anim/anim_slide_out_right"/>
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         <action
             android:id="@+id/navigate_to_list_from_favorites"
             app:destination="@id/list_destination"
             app:enterAnim="@anim/anim_slide_in_right"
             app:exitAnim="@anim/anim_slide_out_right"
             app:popEnterAnim="@anim/anim_slide_in_left"
-            app:popExitAnim="@anim/anim_slide_out_left"/>
+            app:popExitAnim="@anim/anim_slide_out_left"
+            app:popUpTo="@id/list_destination"
+            app:popUpToInclusive="true" />
     </fragment>
 
 </navigation>
