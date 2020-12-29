@@ -12,8 +12,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.databinding.FragmentRssItemDetailsBinding
+import com.indie.whitstan.rssreader.fragment.base.BaseFragment
 
-class ItemDetailFragment : Fragment() {
+class ItemDetailFragment : BaseFragment() {
     private lateinit var binding : FragmentRssItemDetailsBinding
 
     private val args: ItemDetailFragmentArgs by navArgs()

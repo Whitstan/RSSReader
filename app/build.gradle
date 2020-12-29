@@ -74,6 +74,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:{latest-version}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:{latest-version}"
 
+    // EventBus
+    implementation 'de.greenrobot:eventbus:2.4.0'
+
     // Room
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"

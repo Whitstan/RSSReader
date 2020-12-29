@@ -15,19 +15,16 @@ import kotlinx.coroutines.withContext
 
 import com.chauthai.swipereveallayout.ViewBinderHelper
 
-import org.koin.java.KoinJavaComponent.inject
-
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.ArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowArticleBinding
 import com.indie.whitstan.rssreader.model.persistence.Article
-import com.indie.whitstan.rssreader.persistence.ItemRepository
 import com.indie.whitstan.rssreader.util.Converters
+import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
-class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
+class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<ArticleViewHolder>() {
     private var binding: RowArticleBinding? = null
     private val viewBinderHelper = ViewBinderHelper()
-    val repository : ItemRepository by inject(ItemRepository::class.java)
 
     private var articlesList: List<Article> = arrayListOf()
 
@@ -42,7 +39,7 @@ class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         val item =  articlesList[position]
         holder.bind(item)
-        viewBinderHelper.bind(binding!!.swipereveallayout, item.guid)
+        viewBinderHelper.bind(binding!!.swipereveallayout, item.hashCode().toString())
         viewBinderHelper.setOpenOnlyOne(true)
     }
 
@@ -65,10 +62,16 @@ class ArticleAdapter : RecyclerView.Adapter<ArticleViewHolder>() {
             btnAddToFavorites.setOnClickListener {
                 GlobalScope.launch(Dispatchers.IO) {
                     withContext(Dispatchers.Main) {
-                        binding.article?.setFavorite(!binding.article?.isFavorite()!!)
-                        repository.updateArticle(binding.article!!)
-                        repository.insertFavoriteArticle(Converters.convertArticleToFavoriteArticle(binding.article!!))
-                        notifyDataSetChanged()
+                        val article = binding.article!!
+                        val favoriteArticle = Converters.convertArticleToFavoriteArticle(binding.article!!)
+                        if (article.isFavorite()){
+                            itemViewModel.deleteFavoriteArticle(favoriteArticle)
+                        }
+                        else{
+                            itemViewModel.insertFavoriteArticle(favoriteArticle)
+                        }
+                        article.setFavorite(!article.isFavorite())
+                        itemViewModel.updateArticle(article)
                     }
                 }
             }

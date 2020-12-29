@@ -13,9 +13,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "articles")
 class Article : BaseObservable() {
-    @field:PrimaryKey
-    @field:ColumnInfo(name = "guid")
-    var guid: String = UUID.randomUUID().toString()
+    @field:PrimaryKey(autoGenerate = true)
+    @field:ColumnInfo(name = "id")
+    var id: Long = 0
 
     @field:ColumnInfo(name = "title")
     var title: String? = null
@@ -41,5 +41,23 @@ class Article : BaseObservable() {
     fun setFavorite(newValue : Boolean){
         fav = newValue
         notifyPropertyChanged(BR.favorite);
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null){
+            return false
+        }
+        val otherConverted = other as Article
+        return otherConverted.title == title && otherConverted.pubDate == pubDate && otherConverted.description == description
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + (title?.hashCode() ?: 0)
+        result = 31 * result + (link?.hashCode() ?: 0)
+        result = 31 * result + (pubDate?.hashCode() ?: 0)
+        result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + fav.hashCode()
+        return result
     }
 }

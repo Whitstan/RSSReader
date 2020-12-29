@@ -1,14 +1,9 @@
 package com.indie.whitstan.rssreader.persistence
 
-import androidx.lifecycle.viewModelScope
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import androidx.lifecycle.MutableLiveData
 
 import org.koin.java.KoinJavaComponent
 
-import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
@@ -18,102 +13,92 @@ import com.indie.whitstan.rssreader.model.persistence.Article
 import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 import com.indie.whitstan.rssreader.network.RetrofitClient
 import com.indie.whitstan.rssreader.util.Converters
-import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
-interface IItemRepository{
-    suspend fun getArticleByGuid(guid : String): Article
-    fun insertArticle(article: Article)
-    fun insertFavoriteArticle(favoriteArticle: FavoriteArticle)
-    fun insertListOfArticles(articles : List<Article>)
-    fun updateArticle(article: Article)
-    suspend fun deleteArticle(article: Article)
-    fun deleteArticles()
-    fun deleteFavorite(favorite : FavoriteArticle)
-}
-
-class ItemRepository: IItemRepository {
+class ItemRepository {
     private val retrofitClient : RetrofitClient by KoinJavaComponent.inject(RetrofitClient::class.java)
     private val itemDao: ItemDao = ItemsDatabase.getInstance(RssReader.application)!!.itemDao()
 
-    override suspend fun getArticleByGuid(guid : String): Article {
-        return itemDao.getArticleByGuid(guid)
+    private var articlesLocalData = ArrayList<Article>()
+    private var favoriteArticlesLocalData = ArrayList<FavoriteArticle>()
+
+    // Articles
+    suspend fun updateArticle(article: Article): MutableLiveData<List<Article>> {
+        itemDao.updateArticle(article)
+        val result : MutableLiveData<List<Article>> = MutableLiveData(listOf())
+        val index = findElementInList(article, articlesLocalData)
+        articlesLocalData[index].setFavorite(article.isFavorite())
+        result.value = articlesLocalData
+        return result
     }
 
-    override fun insertArticle(article: Article) {
-        GlobalScope.launch(Dispatchers.IO) {
-            itemDao.insertArticle(article)
-        }
-    }
-
-    override fun insertFavoriteArticle(favoriteArticle: FavoriteArticle) {
-        GlobalScope.launch(Dispatchers.IO) {
-            itemDao.insertFavoriteArticle(favoriteArticle)
-        }
-    }
-
-    override fun insertListOfArticles(articles : List<Article>){
-        GlobalScope.launch(Dispatchers.IO) {
-            itemDao.insertListOfArticles(articles)
-        }
-    }
-
-    override fun updateArticle(article: Article) {
-        GlobalScope.launch(Dispatchers.IO) {
-            itemDao.updateArticle(article)
-        }
-    }
-
-    override suspend fun deleteArticle(article: Article) {
-        GlobalScope.launch(Dispatchers.IO) {
-            itemDao.deleteArticle(article)
-        }
-    }
-
-    override fun deleteArticles(){
-        GlobalScope.launch(Dispatchers.IO) {
-            itemDao.deleteArticles()
-        }
-    }
-
-    override fun deleteFavorite(favorite : FavoriteArticle){
-        GlobalScope.launch(Dispatchers.IO) {
-            val articleToUpdate = itemDao.getArticleByGuid(favorite.guid)
-            if (articleToUpdate != null) {
-                articleToUpdate.setFavorite(!articleToUpdate.isFavorite())
-                itemDao.updateArticle(articleToUpdate)
+    private fun findElementInList(article : Article, list : ArrayList<Article>) : Int{
+        list.forEachIndexed { index, element ->
+            if (element.equals(article)){
+                return index
             }
-            itemDao.deleteFavoriteArticle(favorite.guid)
         }
+        return -1
     }
 
-    fun fetchRssData(itemViewModel : ItemViewModel) {
-        retrofitClient.createRSSApi().getRSSObject?.enqueue(object : Callback<RSSObject?> {
-            override fun onResponse(call: Call<RSSObject?>, response: Response<RSSObject?>) {
-                if (response.body() != null){
-                    val rssItems = response.body()!!.RSSItems
-                    if (rssItems != null){
-                        val articles = Converters.convertRssItemsToArticles(rssItems)
-                        deleteArticles()
-                        insertListOfArticles(articles)
-                        itemViewModel.articlesMediatorData.postValue(articles)
-                    }
-                }
+    @JvmName("findElementInListFavorites")
+    private fun findElementInList(favoriteArticle: FavoriteArticle, list : ArrayList<FavoriteArticle>) : Int{
+        list.forEachIndexed { index, element ->
+            if (element.equals(favoriteArticle)){
+                return index
             }
-            override fun onFailure(call: Call<RSSObject?>, error: Throwable) {
-                error.printStackTrace()
-            }
-        })
+        }
+        return -1
     }
 
-    fun loadArticlesFromDb(itemViewModel: ItemViewModel){
-        itemViewModel.viewModelScope.launch {
-            itemViewModel.articlesMediatorData.postValue(itemDao.getArticles())
-        }
+    fun fetchRssData(callback : Callback<RSSObject?>){
+        retrofitClient.createRSSApi().getRSSObject?.enqueue(callback)
     }
 
-    fun loadFavoritesFromDb(itemViewModel : ItemViewModel){
-        itemViewModel.viewModelScope.launch {
-            itemViewModel.favoritesMediatorData.postValue(itemDao.getFavorites())
+    fun handleRssDataResponse(response : Response<RSSObject?>) : MutableLiveData<List<Article>>{
+        val result : MutableLiveData<List<Article>> = MutableLiveData(listOf())
+        response.body()!!.RSSItems.let {
+            result.value = Converters.convertRssItemsToArticles(it)
         }
+        return result
+    }
+
+    suspend fun loadArticlesFromDb() : List<Article>{
+        val result = itemDao.getArticles()
+        articlesLocalData = result as ArrayList
+        return result
+    }
+
+    suspend fun replaceArticles(articles : List<Article>) : MutableLiveData<List<Article>>{
+        itemDao.replaceArticles(articles)
+        val result : MutableLiveData<List<Article>> = MutableLiveData(listOf())
+        articlesLocalData.clear()
+        articlesLocalData.addAll(articles)
+        result.value = articlesLocalData
+        return result
+    }
+
+    // Favorite Articles
+
+    suspend fun insertFavoriteArticle(favoriteArticle: FavoriteArticle) : MutableLiveData<List<FavoriteArticle>>{
+        itemDao.insertFavoriteArticle(favoriteArticle)
+        val result : MutableLiveData<List<FavoriteArticle>> = MutableLiveData(listOf())
+        favoriteArticlesLocalData.add(favoriteArticle)
+        result.value = favoriteArticlesLocalData
+        return result
+    }
+
+    suspend fun deleteFavoriteArticle(favoriteArticle : FavoriteArticle): MutableLiveData<List<FavoriteArticle>>{
+        itemDao.deleteFavoriteArticle(favoriteArticle.id)
+        val result : MutableLiveData<List<FavoriteArticle>> = MutableLiveData(listOf())
+        val index = findElementInList(favoriteArticle, favoriteArticlesLocalData)
+        favoriteArticlesLocalData.removeAt(index)
+        result.value = favoriteArticlesLocalData
+        return result
+    }
+
+    suspend fun loadFavoritesFromDb() : List<FavoriteArticle>{
+        val result = itemDao.getFavorites()
+        favoriteArticlesLocalData = result as ArrayList
+        return result
     }
 }

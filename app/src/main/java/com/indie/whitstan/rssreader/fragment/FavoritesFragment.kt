@@ -17,9 +17,10 @@ import kotlinx.android.synthetic.main.fragment_favorites_list.*
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.FavoriteArticleAdapter
 import com.indie.whitstan.rssreader.databinding.FragmentFavoritesListBinding
+import com.indie.whitstan.rssreader.fragment.base.BaseFragment
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
-class FavoritesFragment : Fragment() {
+class FavoritesFragment : BaseFragment() {
     private lateinit var binding : FragmentFavoritesListBinding
     private val itemViewModel : ItemViewModel by sharedViewModel()
 
@@ -41,11 +42,10 @@ class FavoritesFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         val adapter = FavoriteArticleAdapter(itemViewModel)
-        itemViewModel.favoritesMediatorData.observe(viewLifecycleOwner, { favorites ->
+        rvFavoritesList.adapter = adapter
+        itemViewModel.getFavoriteArticles().observe(viewLifecycleOwner, { favorites ->
             favorites?.let {
                 adapter.setItems(favorites)
-                rvFavoritesList.adapter = adapter
-                rvFavoritesList.adapter!!.notifyDataSetChanged()
                 hideLoadingIndicator()
             }
         })

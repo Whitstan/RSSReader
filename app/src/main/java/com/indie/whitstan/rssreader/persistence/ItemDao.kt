@@ -10,8 +10,8 @@ interface ItemDao {
     @Query("SELECT * FROM articles")
     suspend fun getArticles(): List<Article>
 
-    @Query("SELECT * FROM articles WHERE guid=:guidParam ")
-    suspend fun getArticleByGuid(guidParam: String): Article
+    @Query("SELECT * FROM articles WHERE id=:idParam")
+    suspend fun getArticleByGuid(idParam: Long): Article
 
     @Query("SELECT * FROM favoritearticles")
     suspend fun getFavorites(): List<FavoriteArticle>
@@ -34,6 +34,12 @@ interface ItemDao {
     @Query("DELETE FROM articles")
     suspend fun deleteArticles()
 
-    @Query("DELETE FROM favoritearticles WHERE guid=:guidParam")
-    suspend fun deleteFavoriteArticle(guidParam : String)
+    @Transaction
+    suspend fun replaceArticles(articles : List<Article>){
+        deleteArticles()
+        insertListOfArticles(articles)
+    }
+
+    @Query("DELETE FROM favoritearticles WHERE id=:idParam")
+    suspend fun deleteFavoriteArticle(idParam : Long)
 }

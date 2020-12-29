@@ -6,12 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-
-import org.koin.android.ext.android.inject
 
 import kotlinx.android.synthetic.main.fragment_articles_list.*
 
@@ -20,15 +17,15 @@ import org.koin.android.viewmodel.ext.android.sharedViewModel
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.ArticleAdapter
 import com.indie.whitstan.rssreader.databinding.FragmentArticlesListBinding
-import com.indie.whitstan.rssreader.persistence.ItemRepository
+import com.indie.whitstan.rssreader.event.EventArticlesRefreshed
+import com.indie.whitstan.rssreader.fragment.base.BaseFragment
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
-import kotlinx.android.synthetic.main.fragment_favorites_list.*
+import de.greenrobot.event.EventBus
 
-class ListFragment : Fragment(){
+class ListFragment : BaseFragment(){
 
     private lateinit var binding: FragmentArticlesListBinding
     private val itemViewModel : ItemViewModel by sharedViewModel()
-    private val repository : ItemRepository by inject()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = DataBindingUtil.inflate(
@@ -41,11 +38,16 @@ class ListFragment : Fragment(){
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupViews()
-        itemViewModel.articlesMediatorData.observe(viewLifecycleOwner, Observer {
-            val adapter = ArticleAdapter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val adapter = ArticleAdapter(itemViewModel)
+        rvArticlesList.adapter = adapter
+        itemViewModel.getArticles().observe(viewLifecycleOwner, Observer {
             adapter.setItems(it)
-            rvArticlesList.adapter = adapter
             hideLoadingIndicator()
         })
         itemViewModel.loadArticlesFromDb()
@@ -54,13 +56,19 @@ class ListFragment : Fragment(){
     override fun onStart() {
         super.onStart()
         showLoadingIndicator()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EventBus.getDefault().unregister(this)
     }
 
     private fun setupViews() {
         val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         rvArticlesList.layoutManager = linearLayoutManager
         rvArticlesList.addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
-        srlArticlesList.setOnRefreshListener {repository.fetchRssData(itemViewModel)}
+        srlArticlesList.setOnRefreshListener {itemViewModel.refreshArticlesData()}
     }
 
     private fun showLoadingIndicator() {
@@ -73,5 +81,11 @@ class ListFragment : Fragment(){
         rvArticlesList.visibility = View.VISIBLE
         clpbArticlesList.visibility = View.GONE
         srlArticlesList.isRefreshing = false
+    }
+
+    // EventBus events
+    @Suppress("unused", "UNUSED_PARAMETER")
+    fun onEventMainThread(event: EventArticlesRefreshed) {
+        hideLoadingIndicator()
     }
 }

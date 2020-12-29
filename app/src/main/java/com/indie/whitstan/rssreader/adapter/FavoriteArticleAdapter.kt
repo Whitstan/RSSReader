@@ -10,19 +10,16 @@ import androidx.recyclerview.widget.RecyclerView
 
 import com.chauthai.swipereveallayout.ViewBinderHelper
 
-import org.koin.java.KoinJavaComponent.inject
-
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.FavoriteArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowFavoriteArticleBinding
 import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
-import com.indie.whitstan.rssreader.persistence.ItemRepository
+import com.indie.whitstan.rssreader.util.Converters
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
 class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<FavoriteArticleViewHolder>() {
     private var binding: RowFavoriteArticleBinding? = null
     private val viewBinderHelper = ViewBinderHelper()
-    val repository : ItemRepository by inject(ItemRepository::class.java)
 
     private var favoritesList: ArrayList<FavoriteArticle> = arrayListOf()
 
@@ -39,7 +36,7 @@ class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : Recycle
     override fun onBindViewHolder(holder: FavoriteArticleViewHolder, position: Int) {
         val item =  favoritesList[position]
         holder.bind(item)
-        viewBinderHelper.bind(binding!!.swipereveallayout, item.guid)
+        viewBinderHelper.bind(binding!!.swipereveallayout, item.hashCode().toString())
         viewBinderHelper.setOpenOnlyOne(true)
     }
 
@@ -60,9 +57,8 @@ class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : Recycle
 
         init {
             btnDeleteFromFavorites.setOnClickListener {
-                repository.deleteFavorite(binding.favorite!!)
-                favoritesList.remove(binding.favorite!!)
-                itemViewModel.favoritesMediatorData.postValue(favoritesList)
+                itemViewModel.deleteFavoriteArticle(binding.favorite!!)
+                itemViewModel.updateArticle(Converters.convertFavoriteArticleToArticle(binding.favorite!!, false))
             }
             binding.mainlayout.setOnClickListener{ view ->
                 val args = bundleOf(

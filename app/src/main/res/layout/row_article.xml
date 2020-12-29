@@ -18,11 +18,11 @@
             android:orientation="horizontal">
             <Button
                 android:id="@+id/btn_add_to_favorites"
-                android:layout_width="75dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="#d2691e"
                 android:paddingStart="25dp"
-                android:drawableStart="@{article.favorite ? @drawable/ic_favorite_already : @drawable/ic_not_favorite_yet}"
+                android:drawableStart="@{article.isFavorite ? @drawable/ic_favorite_already : @drawable/ic_not_favorite_yet}"
                 android:gravity="center"
                 android:textColor="#ffffff" />
         </LinearLayout>
@@ -30,7 +30,7 @@
         <LinearLayout
             android:id="@+id/mainlayout"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical"
             android:orientation="vertical"
