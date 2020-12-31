@@ -13,15 +13,15 @@ import com.chauthai.swipereveallayout.ViewBinderHelper
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.FavoriteArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowFavoriteArticleBinding
-import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
+import com.indie.whitstan.rssreader.model.persistence.Article
 import com.indie.whitstan.rssreader.util.Converters
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
 class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<FavoriteArticleViewHolder>() {
+
     private var binding: RowFavoriteArticleBinding? = null
     private val viewBinderHelper = ViewBinderHelper()
-
-    private var favoritesList: ArrayList<FavoriteArticle> = arrayListOf()
+    private var favoritesList: ArrayList<Article> = arrayListOf()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FavoriteArticleViewHolder {
         return FavoriteArticleViewHolder(
@@ -40,15 +40,15 @@ class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : Recycle
         viewBinderHelper.setOpenOnlyOne(true)
     }
 
-    fun setItems(list: List<FavoriteArticle>){
-        favoritesList = list as ArrayList<FavoriteArticle>
+    fun setItems(list: List<Article>){
+        favoritesList = list as ArrayList<Article>
         notifyDataSetChanged()
     }
 
     inner class FavoriteArticleViewHolder(private val binding: RowFavoriteArticleBinding) : RecyclerView.ViewHolder(binding.root) {
         private var btnDeleteFromFavorites: Button = binding.btnDeleteFromFavorites
 
-        fun bind(item: FavoriteArticle) {
+        fun bind(item: Article) {
             this@FavoriteArticleAdapter.binding = binding.apply {
                 favorite = item
                 executePendingBindings()
@@ -57,8 +57,9 @@ class FavoriteArticleAdapter(private val itemViewModel: ItemViewModel) : Recycle
 
         init {
             btnDeleteFromFavorites.setOnClickListener {
-                itemViewModel.deleteFavoriteArticle(binding.favorite!!)
-                itemViewModel.updateArticle(Converters.convertFavoriteArticleToArticle(binding.favorite!!, false))
+                val favorite = binding.favorite!!
+                favorite.setFavorite(false)
+                itemViewModel.updateArticle(favorite)
             }
             binding.mainlayout.setOnClickListener{ view ->
                 val args = bundleOf(

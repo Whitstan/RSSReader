@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
-        <variable name="favorite" type="com.indie.whitstan.rssreader.model.persistence.FavoriteArticle" />
+        <variable name="favorite" type="com.indie.whitstan.rssreader.model.persistence.Article" />
     </data>
     <com.chauthai.swipereveallayout.SwipeRevealLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -43,14 +43,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <TextView
-                android:text="@{favorite.pubDate}"
-                android:id="@+id/txtPubDate"
-                android:textSize="12sp"
-                android:textStyle="italic"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"/>
         </LinearLayout>
 
     </com.chauthai.swipereveallayout.SwipeRevealLayout>

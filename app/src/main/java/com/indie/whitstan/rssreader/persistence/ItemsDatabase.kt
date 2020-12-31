@@ -7,9 +7,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 import com.indie.whitstan.rssreader.model.persistence.Article
-import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 
-@Database(entities = [Article::class, FavoriteArticle::class], version = 1)
+@Database(entities = [Article::class], version = 1)
 abstract class ItemsDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao

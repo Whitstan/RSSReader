@@ -17,24 +17,24 @@ import retrofit2.Response
 import com.indie.whitstan.rssreader.event.EventArticlesRefreshed
 import com.indie.whitstan.rssreader.model.network.RSSObject
 import com.indie.whitstan.rssreader.model.persistence.Article
-import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 import com.indie.whitstan.rssreader.persistence.ItemRepository
 
 class ItemViewModel : ViewModel(), KoinComponent{
+
     private var articlesLiveData = MutableLiveData<List<Article>>()
-    private var favoriteArticlesLiveData = MutableLiveData<List<FavoriteArticle>>()
+    private var favoriteArticlesLiveData = MutableLiveData<List<Article>>()
+
     private val repository : ItemRepository by inject(ItemRepository::class.java)
     private val eventBus : EventBus by inject()
 
-    // Articles
-
     fun getArticles():MutableLiveData<List<Article>>{
-        return  articlesLiveData
+        return articlesLiveData
     }
 
     fun updateArticle(article: Article) {
         viewModelScope.launch {
             articlesLiveData.value = repository.updateArticle(article).value
+            favoriteArticlesLiveData.value = articlesLiveData.value?.filter { it.isFavorite()}
         }
     }
 
@@ -64,30 +64,9 @@ class ItemViewModel : ViewModel(), KoinComponent{
         }
     }
 
-    // Favorite Articles
-
-    fun getFavoriteArticles():MutableLiveData<List<FavoriteArticle>>{
+    fun getFavoriteArticles(): MutableLiveData<List<Article>>{
+        favoriteArticlesLiveData.value = articlesLiveData.value?.filter { it.isFavorite()}
         return favoriteArticlesLiveData
-    }
-
-    fun insertFavoriteArticle(favoriteArticle: FavoriteArticle) {
-        viewModelScope.launch {
-            favoriteArticlesLiveData.value = repository.insertFavoriteArticle(favoriteArticle).value
-        }
-    }
-
-    fun deleteFavoriteArticle(favoriteArticle: FavoriteArticle){
-        viewModelScope.launch {
-            favoriteArticlesLiveData.value = repository.deleteFavoriteArticle(favoriteArticle).value
-        }
-    }
-
-    fun loadFavoritesFromDb(){
-        if (favoriteArticlesLiveData.value.isNullOrEmpty()) {
-            viewModelScope.launch {
-                favoriteArticlesLiveData.value = repository.loadFavoritesFromDb()
-            }
-        }
     }
 
 }

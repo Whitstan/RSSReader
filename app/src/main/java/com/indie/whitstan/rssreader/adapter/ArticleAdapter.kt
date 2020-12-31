@@ -1,5 +1,6 @@
 package com.indie.whitstan.rssreader.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
@@ -8,18 +9,12 @@ import androidx.core.os.bundleOf
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
 import com.chauthai.swipereveallayout.ViewBinderHelper
 
 import com.indie.whitstan.rssreader.R
 import com.indie.whitstan.rssreader.adapter.ArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowArticleBinding
 import com.indie.whitstan.rssreader.model.persistence.Article
-import com.indie.whitstan.rssreader.util.Converters
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
 class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<ArticleViewHolder>() {
@@ -39,7 +34,10 @@ class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Ad
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         val item =  articlesList[position]
         holder.bind(item)
-        viewBinderHelper.bind(binding!!.swipereveallayout, item.hashCode().toString())
+        if (binding == null){
+            Log.d("asd","It was null bruh.")
+        }
+        viewBinderHelper.bind(binding!!.srlArticleRow, item.hashCode().toString())
         viewBinderHelper.setOpenOnlyOne(true)
     }
 
@@ -60,20 +58,9 @@ class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Ad
 
         init {
             btnAddToFavorites.setOnClickListener {
-                GlobalScope.launch(Dispatchers.IO) {
-                    withContext(Dispatchers.Main) {
-                        val article = binding.article!!
-                        val favoriteArticle = Converters.convertArticleToFavoriteArticle(binding.article!!)
-                        if (article.isFavorite()){
-                            itemViewModel.deleteFavoriteArticle(favoriteArticle)
-                        }
-                        else{
-                            itemViewModel.insertFavoriteArticle(favoriteArticle)
-                        }
-                        article.setFavorite(!article.isFavorite())
-                        itemViewModel.updateArticle(article)
-                    }
-                }
+                val article = binding.article!!
+                article.setFavorite(!article.isFavorite())
+                itemViewModel.updateArticle(article)
             }
 
 

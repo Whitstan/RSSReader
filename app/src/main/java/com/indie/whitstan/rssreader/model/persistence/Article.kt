@@ -1,7 +1,5 @@
 package com.indie.whitstan.rssreader.model.persistence
 
-import java.util.*
-
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.databinding.library.baseAdapters.BR
@@ -9,7 +7,6 @@ import androidx.databinding.library.baseAdapters.BR
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
 
 @Entity(tableName = "articles")
 class Article : BaseObservable() {

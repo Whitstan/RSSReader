@@ -10,18 +10,14 @@ import retrofit2.Response
 import com.indie.whitstan.rssreader.RssReader
 import com.indie.whitstan.rssreader.model.network.RSSObject
 import com.indie.whitstan.rssreader.model.persistence.Article
-import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 import com.indie.whitstan.rssreader.network.RetrofitClient
 import com.indie.whitstan.rssreader.util.Converters
 
 class ItemRepository {
     private val retrofitClient : RetrofitClient by KoinJavaComponent.inject(RetrofitClient::class.java)
     private val itemDao: ItemDao = ItemsDatabase.getInstance(RssReader.application)!!.itemDao()
-
     private var articlesLocalData = ArrayList<Article>()
-    private var favoriteArticlesLocalData = ArrayList<FavoriteArticle>()
 
-    // Articles
     suspend fun updateArticle(article: Article): MutableLiveData<List<Article>> {
         itemDao.updateArticle(article)
         val result : MutableLiveData<List<Article>> = MutableLiveData(listOf())
@@ -33,17 +29,7 @@ class ItemRepository {
 
     private fun findElementInList(article : Article, list : ArrayList<Article>) : Int{
         list.forEachIndexed { index, element ->
-            if (element.equals(article)){
-                return index
-            }
-        }
-        return -1
-    }
-
-    @JvmName("findElementInListFavorites")
-    private fun findElementInList(favoriteArticle: FavoriteArticle, list : ArrayList<FavoriteArticle>) : Int{
-        list.forEachIndexed { index, element ->
-            if (element.equals(favoriteArticle)){
+            if (element == article){
                 return index
             }
         }
@@ -74,31 +60,6 @@ class ItemRepository {
         articlesLocalData.clear()
         articlesLocalData.addAll(articles)
         result.value = articlesLocalData
-        return result
-    }
-
-    // Favorite Articles
-
-    suspend fun insertFavoriteArticle(favoriteArticle: FavoriteArticle) : MutableLiveData<List<FavoriteArticle>>{
-        itemDao.insertFavoriteArticle(favoriteArticle)
-        val result : MutableLiveData<List<FavoriteArticle>> = MutableLiveData(listOf())
-        favoriteArticlesLocalData.add(favoriteArticle)
-        result.value = favoriteArticlesLocalData
-        return result
-    }
-
-    suspend fun deleteFavoriteArticle(favoriteArticle : FavoriteArticle): MutableLiveData<List<FavoriteArticle>>{
-        itemDao.deleteFavoriteArticle(favoriteArticle.id)
-        val result : MutableLiveData<List<FavoriteArticle>> = MutableLiveData(listOf())
-        val index = findElementInList(favoriteArticle, favoriteArticlesLocalData)
-        favoriteArticlesLocalData.removeAt(index)
-        result.value = favoriteArticlesLocalData
-        return result
-    }
-
-    suspend fun loadFavoritesFromDb() : List<FavoriteArticle>{
-        val result = itemDao.getFavorites()
-        favoriteArticlesLocalData = result as ArrayList
         return result
     }
 }
