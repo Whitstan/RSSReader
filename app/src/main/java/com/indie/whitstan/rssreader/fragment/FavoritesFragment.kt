@@ -42,7 +42,7 @@ class FavoritesFragment : BaseFragment() {
         super.onResume()
         val adapter = FavoriteArticleAdapter(itemViewModel)
         rvFavoritesList.adapter = adapter
-        itemViewModel.getFavoriteArticles().observe(viewLifecycleOwner, { favorites ->
+        itemViewModel.getFavoriteArticlesLiveData().observe(viewLifecycleOwner, { favorites ->
             favorites?.let {
                 adapter.setItems(favorites)
                 hideLoadingIndicator()

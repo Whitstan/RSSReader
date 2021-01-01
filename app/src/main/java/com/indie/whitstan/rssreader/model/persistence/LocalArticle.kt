@@ -9,7 +9,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "articles")
-class Article : BaseObservable() {
+class LocalArticle() : BaseObservable() {
+
+    constructor(favoriteArticle: FavoriteArticle) : this() {
+        title = favoriteArticle.title
+        link = favoriteArticle.link
+        pubDate = favoriteArticle.pubDate
+        description = favoriteArticle.description
+    }
+
     @field:PrimaryKey(autoGenerate = true)
     @field:ColumnInfo(name = "id")
     var id: Long = 0
@@ -40,21 +48,27 @@ class Article : BaseObservable() {
         notifyPropertyChanged(BR.favorite);
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (other == null){
-            return false
-        }
-        val otherConverted = other as Article
-        return otherConverted.title == title && otherConverted.pubDate == pubDate && otherConverted.description == description
-    }
-
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + (title?.hashCode() ?: 0)
         result = 31 * result + (link?.hashCode() ?: 0)
         result = 31 * result + (pubDate?.hashCode() ?: 0)
         result = 31 * result + (description?.hashCode() ?: 0)
-        result = 31 * result + fav.hashCode()
         return result
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LocalArticle
+
+        if (title != other.title) return false
+        if (link != other.link) return false
+        if (pubDate != other.pubDate) return false
+        if (description != other.description) return false
+
+        return true
+    }
+
 }

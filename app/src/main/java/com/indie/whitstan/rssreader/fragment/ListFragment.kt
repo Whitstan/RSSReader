@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_articles_list.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 import com.indie.whitstan.rssreader.R
-import com.indie.whitstan.rssreader.adapter.ArticleAdapter
+import com.indie.whitstan.rssreader.adapter.LocalArticleAdapter
 import com.indie.whitstan.rssreader.databinding.FragmentArticlesListBinding
 import com.indie.whitstan.rssreader.event.EventArticlesRefreshed
 import com.indie.whitstan.rssreader.fragment.base.BaseFragment
@@ -44,13 +44,13 @@ class ListFragment : BaseFragment(){
 
     override fun onResume() {
         super.onResume()
-        val adapter = ArticleAdapter(itemViewModel)
+        val adapter = LocalArticleAdapter(itemViewModel)
         rvArticlesList.adapter = adapter
-        itemViewModel.getArticles().observe(viewLifecycleOwner, Observer {
+        itemViewModel.getArticlesLiveData().observe(viewLifecycleOwner, Observer {
             adapter.setItems(it)
             hideLoadingIndicator()
         })
-        itemViewModel.loadArticlesFromDb()
+        itemViewModel.loadDataFromDb()
     }
 
     override fun onStart() {

@@ -22,7 +22,8 @@ class RetrofitClient : IRetrofitClient{
     }
 
     companion object {
-        const val RSS_BASE_URL = "https://index.hu/"
+        //const val RSS_BASE_URL = "https://index.hu/"
         //const val RSS_BASE_URL = "https://www.feedforall.com/"
+        const val RSS_BASE_URL = "https://feeds.bbci.co.uk/"
     }
 }

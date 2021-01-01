@@ -5,10 +5,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 
-import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.model.persistence.LocalArticle
 
-@Database(entities = [Article::class], version = 1)
+@Database(entities = [LocalArticle::class, FavoriteArticle::class], version = 1)
 abstract class ItemsDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao

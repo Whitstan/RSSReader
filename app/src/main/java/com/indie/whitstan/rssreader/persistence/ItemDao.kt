@@ -1,38 +1,38 @@
 package com.indie.whitstan.rssreader.persistence
 
 import androidx.room.*
+import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
 
-import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.model.persistence.LocalArticle
 
 @Dao
 interface ItemDao {
     @Query("SELECT * FROM articles")
-    suspend fun getArticles(): List<Article>
-
-    @Query("SELECT * FROM articles WHERE id=:idParam")
-    suspend fun getArticleByGuid(idParam: Long): Article
-
-    @Query("SELECT * FROM articles WHERE favorite = 1")
-    suspend fun getFavorites(): List<Article>
+    suspend fun getArticles(): List<LocalArticle>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertArticle(article: Article)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertListOfArticles(articles : List<Article>)
+    suspend fun insertListOfArticles(localArticles : List<LocalArticle>)
 
     @Transaction
-    suspend fun replaceArticles(articles : List<Article>){
+    suspend fun replaceArticles(localArticles : List<LocalArticle>){
         deleteArticles()
-        insertListOfArticles(articles)
+        insertListOfArticles(localArticles)
     }
 
     @Update
-    suspend fun updateArticle(article: Article)
-
-    @Delete
-    suspend fun deleteArticle(article: Article)
+    suspend fun updateArticle(localArticle: LocalArticle)
 
     @Query("DELETE FROM articles")
     suspend fun deleteArticles()
+
+    // Favorites
+
+    @Query("SELECT * FROM favorites")
+    suspend fun getFavoriteArticles(): List<FavoriteArticle>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavoriteArticle(favoriteArticle: FavoriteArticle)
+
+    @Delete
+    suspend fun deleteFavoriteArticle(favoriteArticle: FavoriteArticle)
 }

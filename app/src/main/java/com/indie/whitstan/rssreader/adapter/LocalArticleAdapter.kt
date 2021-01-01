@@ -1,6 +1,5 @@
 package com.indie.whitstan.rssreader.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
@@ -12,16 +11,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.chauthai.swipereveallayout.ViewBinderHelper
 
 import com.indie.whitstan.rssreader.R
-import com.indie.whitstan.rssreader.adapter.ArticleAdapter.*
+import com.indie.whitstan.rssreader.adapter.LocalArticleAdapter.*
 import com.indie.whitstan.rssreader.databinding.RowArticleBinding
-import com.indie.whitstan.rssreader.model.persistence.Article
+import com.indie.whitstan.rssreader.model.persistence.FavoriteArticle
+import com.indie.whitstan.rssreader.model.persistence.LocalArticle
 import com.indie.whitstan.rssreader.viewmodel.ItemViewModel
 
-class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<ArticleViewHolder>() {
+class LocalArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Adapter<ArticleViewHolder>() {
     private var binding: RowArticleBinding? = null
     private val viewBinderHelper = ViewBinderHelper()
 
-    private var articlesList: List<Article> = arrayListOf()
+    private var articlesList: List<LocalArticle> = arrayListOf()
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ArticleViewHolder {
         return ArticleViewHolder(
@@ -34,14 +34,11 @@ class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Ad
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         val item =  articlesList[position]
         holder.bind(item)
-        if (binding == null){
-            Log.d("asd","It was null bruh.")
-        }
         viewBinderHelper.bind(binding!!.srlArticleRow, item.hashCode().toString())
         viewBinderHelper.setOpenOnlyOne(true)
     }
 
-    fun setItems(itemsList: List<Article>){
+    fun setItems(itemsList: List<LocalArticle>){
         this.articlesList = itemsList
         notifyDataSetChanged()
     }
@@ -49,8 +46,8 @@ class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Ad
     inner class ArticleViewHolder(private val binding: RowArticleBinding) : RecyclerView.ViewHolder(binding.root) {
         private var btnAddToFavorites: Button = binding.btnAddToFavorites
 
-        fun bind(item: Article) {
-            this@ArticleAdapter.binding = binding.apply {
+        fun bind(item: LocalArticle) {
+            this@LocalArticleAdapter.binding = binding.apply {
                 article = item
                 executePendingBindings()
             }
@@ -58,9 +55,16 @@ class ArticleAdapter(private val itemViewModel: ItemViewModel) : RecyclerView.Ad
 
         init {
             btnAddToFavorites.setOnClickListener {
-                val article = binding.article!!
-                article.setFavorite(!article.isFavorite())
-                itemViewModel.updateArticle(article)
+                val localArticle = binding.article!!
+                val isFavorite = localArticle.isFavorite()
+                if (isFavorite){
+                    itemViewModel.deleteFavoriteArticle(itemViewModel.getFavoriteArticleByLocalArticle(localArticle))
+                }
+                else{
+                    itemViewModel.insertFavoriteArticle(FavoriteArticle(localArticle))
+                }
+                localArticle.setFavorite(!isFavorite)
+                itemViewModel.updateArticle(localArticle)
             }
 
 

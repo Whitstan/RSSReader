@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <variable name="article" type="com.indie.whitstan.rssreader.model.persistence.Article" />
+        <variable name="article" type="com.indie.whitstan.rssreader.model.persistence.LocalArticle" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -38,6 +38,8 @@
                 android:id="@+id/mainlayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
                 android:padding="20dp">
                 <TextView
                     android:id="@+id/txtTitle"
@@ -45,8 +47,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:text="@{article.title}"
-                    tools:text="AS:_D:AS_D:SA_D:AS_D:AS_D:A_SD:_ASD:_ASA_S:D_AS:D_S:A_D:AS_D:_ASD:_AS:D_AS:_D:AS_D:AS_D:AS_D:A_SD:_ASASD:_AS:D_SA"/>
+                    android:text="@{article.title}"/>
             </LinearLayout>
 
         </com.chauthai.swipereveallayout.SwipeRevealLayout>
